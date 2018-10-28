@@ -43,7 +43,7 @@ export class RubicCanvas extends React.Component<Props, object> {
             const diamondWidth = borderLength * sqrt3;
             const diamondHeight = borderLength;
             this.drawDiamond(center, diamondWidth, diamondHeight);
-            
+
             center.x -= borderLength * sqrt3 / 4;
             center.y += borderLength * 3 / 4;
             this.drawDiamond(center, diamondWidth, diamondHeight, 60);
