@@ -1,4 +1,4 @@
-enum Color {
+export enum Color {
     YELLOW = '#FFFF00',
     BLUE = '#0000FF',
     WHITE = '#FFFFFF',
@@ -7,7 +7,7 @@ enum Color {
     RED = '#FF0000',
 };
 
-interface Colorcheme {
+export interface ColorScheme {
     u: Color;
     l: Color;
     f: Color;
@@ -16,7 +16,7 @@ interface Colorcheme {
     d: Color;
 }
 
-const Colorchemes: Colorcheme[] = [{
+export const colorSchemes: ColorScheme[] = [{
     u: Color.YELLOW,
     l: Color.BLUE,
     f: Color.RED,

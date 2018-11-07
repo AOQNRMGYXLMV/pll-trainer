@@ -11,7 +11,6 @@ const PLLOperations: Algorithm[] = [{
     edge: [0, 2, 3, 1],
     cornor: [0, 1, 2, 3],
     name: 'Ub',
-
 }, {
     edge: [0, 3, 1, 2],
     cornor: [0, 1, 2, 3],
@@ -92,7 +91,7 @@ const PLLOperations: Algorithm[] = [{
     edge: [3, 1, 0, 2],
     cornor: [1, 3, 2, 0],
     name: 'Gd',
-}]
+}];
 
 export class TopState {
     private edge: State;
@@ -108,9 +107,22 @@ export class TopState {
         this.cornor = initialState.slice();
     }
 
+    public getEdges(): number[] {
+        return this.edge;
+    }
+
+    public getCornors(): number[] {
+        return this.cornor;
+    }
+
     public applyAlgorithm(operation: Algorithm): void {
         this.edge = this.changeState(this.edge, operation.edge);
         this.cornor = this.changeState(this.cornor, operation.cornor);
+    }
+
+    public setPLLState(pllNumber: number): void {
+        this.reset();
+        this.applyAlgorithm(PLLOperations[pllNumber]);
     }
 
     private changeState(state: State, op: State): State {
