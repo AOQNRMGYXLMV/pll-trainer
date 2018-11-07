@@ -1,11 +1,10 @@
 import * as React from 'react';
 import { TopState } from 'src/cube/State';
 import { colorSchemes, ColorScheme, Color } from 'src/cube/ColorScheme';
-import { randomInt } from '../utils/math';
 
 interface IProps {
-    canvasWidth: number;
-    canvasHeight: number;
+    cubeLength: number;
+    pllIndex: number;
 }
 
 interface IState {
@@ -22,17 +21,20 @@ type Vectors = Point[];
 const sideFace = ['l', 'b', 'r', 'f'];
 
 export class RubicCanvas extends React.Component<IProps, IState> {
-    private borderLength: number;
     private canvasRef: React.RefObject<HTMLCanvasElement>;
     private ctx: CanvasRenderingContext2D | null;
     private cubeState: TopState;
     private colorScheme: ColorScheme;
+    private canvasWidth: number;
+    private canvasHeight: number;
 
     constructor(props: IProps) {
         super(props);
         this.canvasRef = React.createRef();
         this.cubeState = new TopState();
         this.colorScheme = colorSchemes[0];
+        this.canvasHeight = props.cubeLength * 2 + 20;
+        this.canvasWidth = props.cubeLength * Math.sqrt(3) + 20;
         this.state = {
             pllIndex: 0
         };
@@ -42,45 +44,36 @@ export class RubicCanvas extends React.Component<IProps, IState> {
         if (this.canvasRef.current) {
             this.ctx = this.canvasRef.current.getContext('2d');
             if (this.ctx) {
-                this.ctx.fillStyle = '#EEEEEE';
-                this.ctx.fillRect(0, 0, this.props.canvasWidth, this.props.canvasHeight);
+                this.cubeState.setPLLState(this.props.pllIndex);
+                this.drawCube();
             }
-            this.drawCubeBorder();
         }
-        this.randomState();
-
     }
 
     componentDidUpdate() {
         if (this.ctx) {
-            this.ctx.fillStyle = '#EEEEEE';
-            this.ctx.fillRect(0, 0, this.props.canvasWidth, this.props.canvasHeight);
+            this.cubeState.setPLLState(this.props.pllIndex);
+            this.drawCube();
         }
-        this.drawCubeBorder();
     }
 
-    randomState = (): void => {
-        const pllIndex = randomInt(0, 21);
-        this.setState({ pllIndex });
-        this.cubeState.setPLLState(pllIndex);
-    }
-
-    drawCubeBorder = (borderLength: number = 250): void => {
-        this.borderLength = borderLength;
+    drawCube = (): void => {
+        
         if (this.ctx) {
             this.ctx.save();
-
+            const { cubeState } = this;
+            const { cubeLength } = this.props;
             let colorMatrix = [];
-            const { colorScheme, cubeState } = this;
+            const { colorScheme } = this;
             const edges = cubeState.getEdges();
             const cornors = cubeState.getCornors();
             const sqrt3 = Math.sqrt(3);
             const center: Point = {
-                x: 250,
-                y: 200
+                x: this.canvasWidth / 2,
+                y: this.canvasHeight / 4
             };
-            const diamondWidth = borderLength * sqrt3;
-            const diamondHeight = borderLength;
+            const diamondWidth = cubeLength * sqrt3;
+            const diamondHeight = cubeLength;
             let vectors: Vectors = [{
                 x: sqrt3 / 2,
                 y: -1 / 2,
@@ -93,8 +86,8 @@ export class RubicCanvas extends React.Component<IProps, IState> {
             }
             this.drawSurface(center, vectors, diamondWidth, diamondHeight, colorMatrix);
 
-            center.x -= borderLength * sqrt3 / 4;
-            center.y += borderLength * 3 / 4;
+            center.x -= cubeLength * sqrt3 / 4;
+            center.y += cubeLength * 3 / 4;
             vectors = [{
                 x: sqrt3 / 2,
                 y: 1 / 2,
@@ -108,7 +101,7 @@ export class RubicCanvas extends React.Component<IProps, IState> {
             colorMatrix.push([this.getCornorColor(cornors[2], 1), colorScheme.f, colorScheme.f]);
             this.drawSurface(center, vectors, diamondWidth, diamondHeight, colorMatrix, 60);
 
-            center.x += borderLength * sqrt3 / 2;
+            center.x += cubeLength * sqrt3 / 2;
             vectors = [{
                 x: sqrt3 / 2,
                 y: -1 / 2,
@@ -137,12 +130,12 @@ export class RubicCanvas extends React.Component<IProps, IState> {
     drawSurface = (center: Point, vectors: Vectors, width: number, height: number, colorMatrix: string[][], rotateAngle: number = 0): void => {
         const gridWidth = width / 3;
         const gridHeight = height / 3;
-        const gridBorderLength = this.borderLength / 3;
+        const gridcubeLength = this.props.cubeLength / 3;
         for (let i = -1; i <= 1; i++) {
             for (let j = -1; j <= 1; j++) {
                 const gridCenter: Point = {
-                    x: center.x + vectors[0].x * i * gridBorderLength + vectors[1].x * j * gridBorderLength,
-                    y: center.y + vectors[0].y * i * gridBorderLength + vectors[1].y * j * gridBorderLength,
+                    x: center.x + vectors[0].x * i * gridcubeLength + vectors[1].x * j * gridcubeLength,
+                    y: center.y + vectors[0].y * i * gridcubeLength + vectors[1].y * j * gridcubeLength,
                 };
                 this.drawDiamond(gridCenter, gridWidth, gridHeight, colorMatrix[i+1][j+1], rotateAngle);
             }
@@ -155,7 +148,7 @@ export class RubicCanvas extends React.Component<IProps, IState> {
 
             this.ctx.strokeStyle = '#000000';
             this.ctx.fillStyle = color;
-            this.ctx.lineWidth = 4;
+            this.ctx.lineWidth = 6;
             this.ctx.lineJoin = 'round';
             this.ctx.translate(center.x, center.y);
             this.ctx.rotate(rotateAngle * Math.PI / 180);
@@ -174,9 +167,8 @@ export class RubicCanvas extends React.Component<IProps, IState> {
     }
 
     render() {
-        const { canvasWidth, canvasHeight } = this.props;
         return (
-            <canvas ref={this.canvasRef} width={canvasWidth} height={canvasHeight} />
+            <canvas ref={this.canvasRef} width={this.canvasWidth} height={this.canvasHeight} />
         );
     }
 }

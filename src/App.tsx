@@ -14,8 +14,8 @@ class App extends React.Component {
         </header>
         <div>
           <RubicCanvas
-            canvasWidth={800}
-            canvasHeight={600}
+            pllIndex={0}
+            cubeLength={200}
           />
         </div>
       </div>
