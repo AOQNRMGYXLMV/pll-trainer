@@ -6,6 +6,7 @@ import { randomInt } from 'src/utils/math';
 interface IProps {
     cubeLength: number;
     pllIndex: number;
+    colorScheme?: number;
 }
 
 interface IState {
@@ -68,12 +69,16 @@ export class RubicCanvas extends React.Component<IProps, IState> {
     }
 
     drawCube = (): void => {
-        
         if (this.ctx) {
             this.ctx.save();
             const { cubeState } = this;
             const { cubeLength } = this.props;
-            this.colorScheme = colorSchemes[randomInt(0, 6)];
+            if (this.props.colorScheme !== undefined && this.props.colorScheme >= 0) {
+                this.colorScheme = colorSchemes[this.props.colorScheme];
+            } else {
+                this.colorScheme = colorSchemes[randomInt(0, 6)];
+            }
+            console.log('this.props.colorScheme:', this.props.colorScheme);
             this.topSideFace = getRandSide();
             this.bottomSideFace = getRandSide();
             let colorMatrix = [];
@@ -141,7 +146,7 @@ export class RubicCanvas extends React.Component<IProps, IState> {
     getEdgeColor = (edge: number): Color => {
         return this.colorScheme[this.topSideFace[(edge + 1) % 4]];
     }
-    
+
     drawSurface = (center: Point, vectors: Vectors, width: number, height: number, colorMatrix: string[][], rotateAngle: number = 0): void => {
         const gridWidth = width / 3;
         const gridHeight = height / 3;
@@ -152,11 +157,11 @@ export class RubicCanvas extends React.Component<IProps, IState> {
                     x: center.x + vectors[0].x * i * gridcubeLength + vectors[1].x * j * gridcubeLength,
                     y: center.y + vectors[0].y * i * gridcubeLength + vectors[1].y * j * gridcubeLength,
                 };
-                this.drawDiamond(gridCenter, gridWidth, gridHeight, colorMatrix[i+1][j+1], rotateAngle);
+                this.drawDiamond(gridCenter, gridWidth, gridHeight, colorMatrix[i + 1][j + 1], rotateAngle);
             }
-        }        
+        }
     }
- 
+
     drawDiamond = (center: Point, width: number, height: number, color: string, rotateAngle: number = 0): void => {
         if (this.ctx) {
             this.ctx.save();

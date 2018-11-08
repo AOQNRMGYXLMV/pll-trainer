@@ -93,6 +93,8 @@ const PLLOperations: Algorithm[] = [{
     name: 'Gd',
 }];
 
+export const pllNames: string[] = PLLOperations.map(x => x.name);
+
 export class TopState {
     private edge: State;
     private cornor: State;
